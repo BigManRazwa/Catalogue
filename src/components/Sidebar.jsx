@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Tag, DollarSign, ArrowUpDown, RotateCcw, Check } from 'lucide-react'
 
 export default function Sidebar({ filters, onFilterChange }) {
   const [categories, setCategories] = useState(['All'])
@@ -36,10 +37,9 @@ export default function Sidebar({ filters, onFilterChange }) {
   return (
     <aside className="w-60 shrink-0 flex flex-col gap-4">
 
-      {/* Category */}
       <div className="bg-white rounded-xl shadow-sm p-5">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-          <i className="fas fa-tag" /> Category
+          <Tag className="w-3 h-3" /> Category
         </h3>
         <ul className="flex flex-col gap-1">
           {categories.map(cat => (
@@ -48,35 +48,30 @@ export default function Sidebar({ filters, onFilterChange }) {
                 onClick={() => onFilterChange(f => ({ ...f, category: cat }))}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-all
                   ${filters.category === cat
-                    ? 'bg-red-50 text-accent font-semibold'
+                    ? 'bg-green-50 text-accent font-semibold'
                     : 'hover:bg-gray-50 text-gray-700'}`}
               >
                 {cat}
-                {filters.category === cat && <i className="fas fa-check text-[10px]" />}
+                {filters.category === cat && <Check className="w-3 h-3" />}
               </button>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Price Range */}
       <div className="bg-white rounded-xl shadow-sm p-5">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-          <i className="fas fa-tag" /> Price Range (Rp)
+          <DollarSign className="w-3 h-3" /> Price Range (Rp)
         </h3>
         <div className="flex items-center gap-2 mb-3">
           <input
-            type="number"
-            placeholder="Min"
-            value={localMin}
+            type="number" placeholder="Min" value={localMin}
             onChange={e => setLocalMin(e.target.value)}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <span className="text-gray-400 text-sm shrink-0">–</span>
           <input
-            type="number"
-            placeholder="Max"
-            value={localMax}
+            type="number" placeholder="Max" value={localMax}
             onChange={e => setLocalMax(e.target.value)}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent"
           />
@@ -89,15 +84,14 @@ export default function Sidebar({ filters, onFilterChange }) {
         </button>
         {(filters.priceMin !== null || filters.priceMax !== null) && (
           <p className="text-[10px] text-accent mt-2 text-center font-medium">
-            Filter active: Rp{filters.priceMin?.toLocaleString('id-ID') || '0'} – Rp{filters.priceMax?.toLocaleString('id-ID') || '∞'}
+            Filter active
           </p>
         )}
       </div>
 
-      {/* Sort */}
       <div className="bg-white rounded-xl shadow-sm p-5">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-          <i className="fas fa-sort" /> Sort By
+          <ArrowUpDown className="w-3 h-3" /> Sort By
         </h3>
         <select
           value={filters.sortBy}
@@ -112,12 +106,11 @@ export default function Sidebar({ filters, onFilterChange }) {
         </select>
       </div>
 
-      {/* Reset */}
       <button
         onClick={reset}
         className="w-full border-2 border-gray-200 hover:border-accent hover:text-accent text-gray-400 rounded-xl py-2.5 text-sm font-medium transition-all flex items-center justify-center gap-2"
       >
-        <i className="fas fa-rotate-left" /> Reset Filters
+        <RotateCcw className="w-3.5 h-3.5" /> Reset Filters
       </button>
     </aside>
   )

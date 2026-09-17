@@ -2,8 +2,9 @@
 import { supabase } from '../lib/supabase'
 import ProductCard from './ProductCard'
 import { useCart } from '../context/CartContext'
+import { LayoutGrid, List, PackageOpen, Loader2, AlertTriangle } from 'lucide-react'
 
-export default function ProductGrid({ filters, isListView, onViewToggle }) {
+export default function ProductGrid({ filters, isListView, onViewToggle, showReseller }) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -17,18 +18,13 @@ export default function ProductGrid({ filters, isListView, onViewToggle }) {
       .eq('is_active', true)
       .order('created_at', { ascending: true })
       .then(({ data, error: err }) => {
-        if (err) {
-          console.error(err)
-          setError(err.message)
-        } else {
-          setProducts(data || [])
-        }
+        if (err) { console.error(err); setError(err.message) }
+        else setProducts(data || [])
         setLoading(false)
       })
   }, [])
 
-  const getPrice = p =>
-    pricingMode === 'reseller' ? p.reseller_price : p.regular_price
+  const getPrice = p => pricingMode === 'reseller' ? p.reseller_price : p.regular_price
 
   const filtered = useMemo(() => {
     let list = products.filter(p => {
@@ -39,29 +35,26 @@ export default function ProductGrid({ filters, isListView, onViewToggle }) {
       const matchSearch = !filters.search || p.name.toLowerCase().includes(filters.search.toLowerCase())
       return matchCat && matchMin && matchMax && matchSearch
     })
-
     switch (filters.sortBy) {
-      case 'price-asc':  list.sort((a, b) => getPrice(a) - getPrice(b));             break
-      case 'price-desc': list.sort((a, b) => getPrice(b) - getPrice(a));             break
-      case 'name-asc':   list.sort((a, b) => a.name.localeCompare(b.name));          break
-      case 'name-desc':  list.sort((a, b) => b.name.localeCompare(a.name));          break
+      case 'price-asc':  list.sort((a, b) => getPrice(a) - getPrice(b)); break
+      case 'price-desc': list.sort((a, b) => getPrice(b) - getPrice(a)); break
+      case 'name-asc':   list.sort((a, b) => a.name.localeCompare(b.name)); break
+      case 'name-desc':  list.sort((a, b) => b.name.localeCompare(a.name)); break
       default: break
     }
-
     return list
   }, [products, filters, pricingMode])
 
   if (loading) return (
-    <main className="flex-1 flex items-center justify-center h-64 text-gray-400">
-      <i className="fas fa-spinner fa-spin text-2xl mr-3" />
-      <span>Loading products…</span>
+    <main className="flex-1 flex items-center justify-center h-64 text-gray-400 gap-3">
+      <Loader2 className="w-6 h-6 animate-spin" /><span>Loading products…</span>
     </main>
   )
 
   if (error) return (
-    <main className="flex-1 flex flex-col items-center justify-center h-64 text-gray-400 gap-3">
-      <i className="fas fa-triangle-exclamation text-3xl text-amber-400" />
-      <p className="text-sm font-medium text-center">
+    <main className="flex-1 flex flex-col items-center justify-center h-64 gap-3">
+      <AlertTriangle className="w-10 h-10 text-amber-400" />
+      <p className="text-sm font-medium text-center text-gray-500">
         Could not load products.<br />
         <span className="text-xs text-gray-400">Check your Supabase env vars in .env.local</span>
       </p>
@@ -70,48 +63,32 @@ export default function ProductGrid({ filters, isListView, onViewToggle }) {
 
   return (
     <main className="flex-1 min-w-0">
-      {/* Toolbar */}
       <div className="flex items-center justify-between mb-5">
         <span className="text-sm text-gray-500">
-          Showing{' '}
-          <strong className="text-gray-900 font-semibold">{filtered.length}</strong>{' '}
-          {filtered.length === 1 ? 'product' : 'products'}
+          Showing <strong className="text-gray-900 font-semibold">{filtered.length}</strong> products
         </span>
         <div className="flex gap-2">
-          <button
-            onClick={() => onViewToggle(false)}
-            title="Grid view"
+          <button onClick={() => onViewToggle(false)} title="Grid view"
             className={`p-2.5 rounded-lg border text-sm transition-all
-              ${!isListView ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
-          >
-            <i className="fas fa-grip" />
+              ${!isListView ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}>
+            <LayoutGrid className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => onViewToggle(true)}
-            title="List view"
+          <button onClick={() => onViewToggle(true)} title="List view"
             className={`p-2.5 rounded-lg border text-sm transition-all
-              ${isListView ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
-          >
-            <i className="fas fa-list" />
+              ${isListView ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}>
+            <List className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Grid / List */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-gray-300 gap-4">
-          <i className="fas fa-box-open text-5xl" />
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <PackageOpen className="w-14 h-14 text-gray-200" />
           <p className="text-gray-400 text-sm">No products match your current filters.</p>
         </div>
       ) : (
-        <div
-          className={isListView
-            ? 'flex flex-col gap-4'
-            : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'}
-        >
-          {filtered.map(p => (
-            <ProductCard key={p.id} product={p} isListView={isListView} />
-          ))}
+        <div className={isListView ? 'flex flex-col gap-4' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'}>
+          {filtered.map(p => <ProductCard key={p.id} product={p} isListView={isListView} showReseller={showReseller} />)}
         </div>
       )}
     </main>
