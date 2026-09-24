@@ -1,8 +1,8 @@
-﻿# Build stage
+# Build stage
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 COPY . .
 ARG VITE_ADMIN_PASSWORD
 ENV VITE_SUPABASE_URL=https://qsuyepdbtblxvajxqqea.supabase.co
