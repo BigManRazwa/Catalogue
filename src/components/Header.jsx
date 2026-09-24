@@ -1,9 +1,9 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, X, ShoppingCart, Eye, EyeOff, LayoutDashboard } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { Link } from 'react-router-dom'
 
-export default function Header({ onCartClick, search, onSearchChange, showReseller, onToggleReseller }) {
+export default function Header({ onCartClick, search, onSearchChange, showReseller, onToggleReseller, isEndUser = true }) {
   const { totalItems } = useCart()
   const [visible, setVisible] = useState(true)
   const lastY = useRef(0)
@@ -51,30 +51,34 @@ export default function Header({ onCartClick, search, onSearchChange, showResell
         {/* Right actions */}
         <div className="flex items-center gap-2 shrink-0">
 
-          {/* Reseller toggle */}
-          <button
-            onClick={onToggleReseller}
-            title={showReseller ? 'Hide reseller price' : 'Show reseller price'}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all
-              ${showReseller
-                ? 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
-                : 'bg-white/50 border-green-100 text-green-400 hover:text-green-700 hover:bg-green-50'}`}
-          >
-            {showReseller ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            <span>Reseller</span>
-          </button>
+          {/* Reseller toggle — admin only */}
+          {!isEndUser && (
+            <button
+              onClick={onToggleReseller}
+              title={showReseller ? 'Hide reseller price' : 'Show reseller price'}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all
+                ${showReseller
+                  ? 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
+                  : 'bg-white/50 border-green-100 text-green-400 hover:text-green-700 hover:bg-green-50'}`}
+            >
+              {showReseller ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <span>Reseller</span>
+            </button>
+          )}
 
-          {/* Admin button — proper labeled entry */}
-          <Link
-            to="/admin"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-green-200 bg-white/60 text-green-700 hover:bg-green-100 hover:border-green-300 transition-all"
-          >
-            <LayoutDashboard className="w-3.5 h-3.5" />
-            <span>Admin</span>
-          </Link>
+          {/* Admin button — admin only */}
+          {!isEndUser && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-green-200 bg-white/60 text-green-700 hover:bg-green-100 hover:border-green-300 transition-all"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </Link>
+          )}
 
           {/* Divider */}
-          <div className="w-px h-5 bg-green-200" />
+          {!isEndUser && <div className="w-px h-5 bg-green-200" />}
 
           {/* Cart */}
           <button

@@ -9,7 +9,7 @@ import {
 
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID')
 
-export default function CartDrawer({ isOpen, onClose }) {
+export default function CartDrawer({ isOpen, onClose, isEndUser = true }) {
   const {
     items, pricingMode, setPricingMode, getPrice,
     removeItem, changeQty, clearCart,
@@ -76,21 +76,23 @@ export default function CartDrawer({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* ── Pricing mode ── */}
-        <div className="px-6 py-3 border-b border-gray-100 shrink-0">
-          <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
-            {[
-              { value: 'regular', label: 'Regular' },
-              { value: 'reseller', label: 'Reseller' },
-            ].map(({ value, label }) => (
-              <button key={value} onClick={() => setPricingMode(value)}
-                className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all
-                  ${pricingMode === value ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}>
-                {label}
-              </button>
-            ))}
+        {/* ── Pricing mode (admin only) ── */}
+        {!isEndUser && (
+          <div className="px-6 py-3 border-b border-gray-100 shrink-0">
+            <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
+              {[
+                { value: 'regular', label: 'Regular' },
+                { value: 'reseller', label: 'Reseller' },
+              ].map(({ value, label }) => (
+                <button key={value} onClick={() => setPricingMode(value)}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all
+                    ${pricingMode === value ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Scrollable content ── */}
         <div className="flex-1 overflow-y-auto">

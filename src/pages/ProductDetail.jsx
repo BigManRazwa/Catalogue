@@ -1,10 +1,10 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useCart } from '../context/CartContext'
 import Header from '../components/Header'
 import CartDrawer from '../components/CartDrawer'
-import { ChevronRight, Minus, Plus, ShoppingCart, Check, Loader2, Tag, ArrowLeft } from 'lucide-react'
+import { ChevronRight, Minus, Plus, ShoppingCart, Check, Loader2, ArrowLeft } from 'lucide-react'
 
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID')
 
@@ -15,7 +15,6 @@ export default function ProductDetail() {
   const [selectedImg, setSelectedImg] = useState(0)
   const [qty, setQty] = useState(1)
   const [cartOpen, setCartOpen] = useState(false)
-  const [showReseller, setShowReseller] = useState(false)
   const { addItem, items, getPrice, pricingMode } = useCart()
 
   useEffect(() => {
@@ -56,8 +55,6 @@ export default function ProductDetail() {
 
   const inCart = items.find(i => i.product.id === product.id)
   const price = getPrice(product)
-  const otherPrice = pricingMode === 'reseller' ? product.regular_price : product.reseller_price
-  const otherLabel = pricingMode === 'reseller' ? 'Regular' : 'Reseller'
 
   const handleAdd = () => {
     for (let i = 0; i < qty; i++) addItem(product)
@@ -69,10 +66,11 @@ export default function ProductDetail() {
         onCartClick={() => setCartOpen(true)}
         search=""
         onSearchChange={() => {}}
-        showReseller={showReseller}
-        onToggleReseller={() => setShowReseller(r => !r)}
+        showReseller={false}
+        onToggleReseller={() => {}}
+        isEndUser={true}
       />
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} isEndUser={true} />
 
       <div className="max-w-screen-xl mx-auto px-6 py-8">
 
@@ -137,12 +135,6 @@ export default function ProductDetail() {
               <span className="text-3xl font-bold text-gray-900">{fmt(price)}</span>
               <span className="text-sm text-gray-400">/m²</span>
             </div>
-            {showReseller && (
-              <p className="text-sm text-reseller flex items-center gap-1.5 font-medium mb-6">
-                <Tag className="w-3.5 h-3.5" />
-                {otherLabel}: {fmt(otherPrice)}/m²
-              </p>
-            )}
 
             <div className="border-t border-gray-100 pt-6 mb-6">
               <div className="flex items-center gap-4 mb-5">
